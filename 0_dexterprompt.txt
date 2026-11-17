@@ -1,0 +1,80 @@
+Produce a detailed research report on Bitcoin (BTC-USD) as of today, covering fundamentals and technical price action on the monthly, weekly and daily timeframes. I am using this to form a view on where BTC stands in its cycle and what the key levels are, so I care more about specific numbers and clear reasoning than about breadth for its own sake.
+
+Use every data feed you have rather than leaning on web search alone: the market data tool for BTC prices and market news, web search for fundamentals, web fetch or the browser to read primary sources (on-chain dashboards, ETF flow trackers) when a search snippet is not enough, and X search for sentiment. If one of these tools is not available in this session, say so in the report and carry on with the rest.
+
+You have a limited number of tool-calling steps, so batch independent calls into the same step: pull all three price series together, and run the web searches and X searches together.
+
+DATA TO GATHER
+
+Price history for BTC-USD, all ending today:
+- Monthly candles going back as far as the data allows (at least 8 years, so the last two halving cycles are covered)
+- Weekly candles for the last 4 years
+- Daily candles for the last 400 days
+- The current price snapshot
+
+Compute the indicators yourself from the OHLCV data (with the bash tool if it is available) rather than relying on figures quoted in articles. If a calculation is not possible, say so instead of estimating.
+
+Fundamentals, from web search, with the date of each figure:
+- Supply and issuance: circulating supply, current block subsidy, annual issuance rate, date of the last halving and estimate for the next
+- Network security: hash rate, difficulty and its recent trend, miner revenue and hash price, any signs of miner stress or capitulation
+- On-chain valuation: MVRV, realized price, short-term and long-term holder cost basis, NUPL, the share of supply in profit
+- Holder behavior: long-term holder supply trend, exchange balances, exchange net flows
+- Demand: spot ETF net flows over the last week, month and quarter and total holdings; corporate and sovereign treasury holdings and recent purchases
+- Derivatives: futures open interest, funding rates, options positioning and notable strikes or expiries
+- Macro: Fed policy path, real yields, the dollar index, global liquidity, and BTC's recent correlation with equities and gold
+- Regulation and policy developments from the last 90 days that matter for demand or market structure
+
+Sentiment and positioning on X, from X search over the last 7 days (run the searches directly rather than through the x-research skill, to save steps):
+- A core query on $BTC / Bitcoin sorted by likes, with replies, airdrops and giveaways filtered out
+- One bullish-leaning and one bearish-leaning query, so both sides of the argument are sampled
+- Recent posts from well-known on-chain analysts, macro commentators and ETF flow trackers
+- What the crowd is focused on right now: the dominant narratives, the levels traders keep citing, and any breaking news not yet in the web results
+Treat X as a read on sentiment and narrative, not as a source of facts: any number that comes only from a post must be labeled as unverified, and note whether sentiment looks crowded in one direction.
+
+Recent news, from the market data tool's news feed, with dates: broad market headlines (no ticker) for macro catalysts, plus news for the listed Bitcoin proxies MSTR, IBIT and COIN. The feed is keyed to stock tickers, so use web search for Bitcoin-specific headlines.
+
+TECHNICAL ANALYSIS
+
+Analyze each timeframe separately, in this order, then say how they fit together.
+
+Monthly (the cycle view):
+- Where price sits relative to the prior cycle high, the current cycle high, and the drawdown from the all-time high
+- Months elapsed since the last halving, compared with where the previous two cycles were at the same point
+- 12-month and 24-month simple moving averages, monthly RSI(14), monthly MACD
+- Structure of the last 6 monthly candles: higher highs and lows or not, closes relative to range, volume trend
+- Major monthly support and resistance levels
+
+Weekly (the trend view):
+- 20, 50 and 200-week moving averages: price position relative to each, their slope, and any crosses
+- Weekly RSI(14) and MACD, including any divergence against price
+- Market structure: the sequence of swing highs and lows, and the level that would break the current trend
+- Volume on up weeks versus down weeks over the last quarter
+- Key weekly support and resistance zones
+
+Daily (the tactical view):
+- 20, 50 and 200-day moving averages, with position, slope and crosses
+- Daily RSI(14), MACD, Bollinger Bands (20, 2) and ATR(14) as a percentage of price
+- The current range or trend, recent breakouts or failures, and any unfilled gaps or obvious liquidity levels
+- Volume behavior on the most recent significant moves
+- Nearest support and resistance with exact prices
+
+REPORT FORMAT
+
+1. Executive summary: 5 to 8 sentences giving the overall read and the stance on each timeframe (bullish, neutral or bearish) with the single most important reason for each.
+2. Fundamentals: one subsection per category above, each ending in a one-line verdict on whether it is a tailwind, headwind or neutral.
+3. Sentiment: the bull and bear arguments circulating on X with links to the most representative posts, the dominant narratives, whether positioning looks crowded, and whether sentiment agrees or conflicts with the data.
+4. Technicals: monthly, weekly, daily, each with a table of indicator values and a short interpretation.
+5. Timeframe alignment: where the three timeframes agree, where they conflict, and which one should take priority and why.
+6. Key levels: one table of support and resistance with the price, the timeframe it comes from, and why it matters.
+7. Scenarios: bull, base and bear cases for the next 1 to 3 months, each with a rough probability, the trigger that confirms it, the level that invalidates it, and a price target.
+8. Risks and what to watch: the data releases, events and on-chain or flow signals that would change the view.
+9. Sources, with dates, including the tools that were unavailable.
+
+Standards:
+- State every number with its date and source. Where sources disagree, give the range and say which you trust more.
+- Keep computed values (from the price data) visibly separate from quoted values (from the web).
+- If fundamentals and technicals point in different directions, say so plainly rather than smoothing it over.
+- Flag anything you could not retrieve or verify instead of filling the gap.
+- This is analysis, not personal financial advice; no position-sizing recommendations are needed.
+
+When the report is complete, also save it as markdown to .dexter/reports/btc-report-YYYY-MM-DD.md using today's date, and tell me the path.
