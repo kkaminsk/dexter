@@ -2,6 +2,26 @@ import { DynamicStructuredTool } from '@langchain/core/tools';
 import { z } from 'zod';
 import { api } from './api.js';
 import { formatToolResult } from '../types.js';
+import { getCoinbasePrices, getCoinbaseSnapshot } from './coinbase.js';
+
+const FALLBACK_NOTE =
+  " If the primary provider refuses the request, data comes from Coinbase's public feed instead: pairs listed on Coinbase only, with volume in base-currency units for that exchange alone.";
+
+/**
+ * Financial Datasets limits crypto prices to some subscriptions (403 otherwise),
+ * so retry against Coinbase. If that fails too, surface the original error.
+ */
+async function withCoinbaseFallback(primary: () => Promise<string>, fallback: () => Promise<string>): Promise<string> {
+  try {
+    return await primary();
+  } catch (error) {
+    try {
+      return await fallback();
+    } catch {
+      throw error;
+    }
+  }
+}
 
 const CryptoPriceSnapshotInputSchema = z.object({
   ticker: z
@@ -13,13 +33,20 @@ const CryptoPriceSnapshotInputSchema = z.object({
 
 export const getCryptoPriceSnapshot = new DynamicStructuredTool({
   name: 'get_crypto_price_snapshot',
-  description: `Fetches the most recent price snapshot for a specific cryptocurrency, including the latest price, trading volume, and other open, high, low, and close price data. Ticker format: use 'CRYPTO-USD' for USD prices (e.g., 'BTC-USD') or 'CRYPTO-CRYPTO' for crypto-to-crypto prices (e.g., 'BTC-ETH' for Bitcoin priced in Ethereum).`,
+  description: `Fetches the most recent price snapshot for a specific cryptocurrency, including the latest price, trading volume, and other open, high, low, and close price data. Ticker format: use 'CRYPTO-USD' for USD prices (e.g., 'BTC-USD') or 'CRYPTO-CRYPTO' for crypto-to-crypto prices (e.g., 'BTC-ETH' for Bitcoin priced in Ethereum).${FALLBACK_NOTE}`,
   schema: CryptoPriceSnapshotInputSchema,
-  func: async (input) => {
-    const params = { ticker: input.ticker };
-    const { data, url } = await api.get('/crypto/prices/snapshot/', params);
-    return formatToolResult(data.snapshot || {}, [url]);
-  },
+  func: (input) =>
+    withCoinbaseFallback(
+      async () => {
+        const params = { ticker: input.ticker };
+        const { data, url } = await api.get('/crypto/prices/snapshot/', params);
+        return formatToolResult(data.snapshot || {}, [url]);
+      },
+      async () => {
+        const { snapshot, url } = await getCoinbaseSnapshot(input.ticker);
+        return formatToolResult(snapshot, [url]);
+      },
+    ),
 });
 
 const CryptoPricesInputSchema = z.object({
@@ -42,9 +69,9 @@ const CryptoPricesInputSchema = z.object({
 
 export const getCryptoPrices = new DynamicStructuredTool({
   name: 'get_crypto_prices',
-  description: `Retrieves historical price data for a cryptocurrency over a specified date range, including open, high, low, close prices, and volume. Ticker format: use 'CRYPTO-USD' for USD prices (e.g., 'BTC-USD') or 'CRYPTO-CRYPTO' for crypto-to-crypto prices (e.g., 'BTC-ETH' for Bitcoin priced in Ethereum).`,
+  description: `Retrieves historical price data for a cryptocurrency over a specified date range, including open, high, low, close prices, and volume. Ticker format: use 'CRYPTO-USD' for USD prices (e.g., 'BTC-USD') or 'CRYPTO-CRYPTO' for crypto-to-crypto prices (e.g., 'BTC-ETH' for Bitcoin priced in Ethereum).${FALLBACK_NOTE}`,
   schema: CryptoPricesInputSchema,
-  func: async (input) => {
+  func: (input) => {
     const params = {
       ticker: input.ticker,
       interval: input.interval,
@@ -52,12 +79,20 @@ export const getCryptoPrices = new DynamicStructuredTool({
       start_date: input.start_date,
       end_date: input.end_date,
     };
-    // Cache when the date window is fully closed (OHLCV data is final)
-    const endDate = new Date(input.end_date + 'T00:00:00');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const { data, url } = await api.get('/crypto/prices/', params, { cacheable: endDate < today });
-    return formatToolResult(data.prices || [], [url]);
+    return withCoinbaseFallback(
+      async () => {
+        // Cache when the date window is fully closed (OHLCV data is final)
+        const endDate = new Date(input.end_date + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const { data, url } = await api.get('/crypto/prices/', params, { cacheable: endDate < today });
+        return formatToolResult(data.prices || [], [url]);
+      },
+      async () => {
+        const { prices, url } = await getCoinbasePrices(params);
+        return formatToolResult(prices, [url]);
+      },
+    );
   },
 });
 
