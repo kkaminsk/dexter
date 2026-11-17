@@ -229,7 +229,7 @@ export async function runCli() {
   let activeQuestionPrompt: QuestionPromptComponent | null = null;
 
   agentRunner = new AgentRunnerController(
-    { model: modelSelection.model, modelProvider: modelSelection.provider, maxIterations: 10 },
+    { model: modelSelection.model, modelProvider: modelSelection.provider, maxIterations: 25 },
     modelSelection.inMemoryChatHistory,
     () => {
       // Incremental history update — only render new events
