@@ -6,6 +6,8 @@
  * and returns a human-readable string that's 5-10x smaller.
  */
 
+import { INLINE_PRICE_ROWS, sortPriceRows } from './price-history.js';
+
 // ---------------------------------------------------------------------------
 // Number formatting helpers
 // ---------------------------------------------------------------------------
@@ -174,15 +176,29 @@ export function formatStockPrice(data: unknown): string {
 }
 
 export function formatStockPrices(data: unknown): string {
-  const items = Array.isArray(data) ? data : [];
+  const items = Array.isArray(data) ? sortPriceRows(data as Rec[]) : [];
   if (items.length === 0) return 'No price history available.';
-  const lines = ['Price History', ''];
-  lines.push('| Date | Open | Close | Volume |');
-  lines.push('|------|------|-------|--------|');
-  for (const row of items.slice(0, 20) as Rec[]) {
-    lines.push(`| ${row.time ?? row.date ?? '—'} | ${fmtPrice(row.open)} | ${fmtPrice(row.close)} | ${fmtNum(row.volume)} |`);
+  const dateOf = (row: Rec) => row.time ?? row.date ?? '—';
+  const first = items[0];
+  const last = items[items.length - 1];
+  const lines = [`Price History — ${items.length} rows, ${dateOf(first)} to ${dateOf(last)}`];
+
+  // Range extremes cover every row, including those left out of the table below
+  const withRange = items.filter((row) => row.high != null && row.low != null);
+  if (withRange.length > 0) {
+    const high = withRange.reduce((a, b) => (Number(b.high) > Number(a.high) ? b : a));
+    const low = withRange.reduce((a, b) => (Number(b.low) < Number(a.low) ? b : a));
+    lines.push(`Range high ${fmtPrice(high.high)} (${dateOf(high)}), range low ${fmtPrice(low.low)} (${dateOf(low)})`);
   }
-  if (items.length > 20) lines.push(`... and ${items.length - 20} more rows`);
+
+  const shown = items.slice(-INLINE_PRICE_ROWS);
+  lines.push('');
+  if (shown.length < items.length) lines.push(`Most recent ${shown.length} rows:`);
+  lines.push('| Date | Open | High | Low | Close | Volume |');
+  lines.push('|------|------|------|-----|-------|--------|');
+  for (const row of shown) {
+    lines.push(`| ${dateOf(row)} | ${fmtPrice(row.open)} | ${fmtPrice(row.high)} | ${fmtPrice(row.low)} | ${fmtPrice(row.close)} | ${fmtNum(row.volume)} |`);
+  }
   return lines.join('\n');
 }
 

@@ -7,6 +7,23 @@ import { formatToolResult } from '../types.js';
 import { getCurrentDate } from '../../agent/prompts.js';
 import { withTimeout, SUB_TOOL_TIMEOUT_MS } from './utils.js';
 import { MARKET_DATA_FORMATTERS } from './formatters.js';
+import { savePriceHistory } from './price-history.js';
+
+/**
+ * Key for one sub-tool result in the combined output: tool, then ticker and
+ * interval when present, so e.g. daily, weekly and monthly histories for the
+ * same ticker stay separate. A counter breaks any remaining tie.
+ */
+export function resultKey(tool: string, args: Record<string, unknown>, taken: Record<string, unknown>): string {
+  const multiplier = Number(args.interval_multiplier ?? 1);
+  const interval = args.interval ? `${multiplier > 1 ? multiplier : ''}${args.interval}` : undefined;
+  const base = [tool, args.ticker, interval].filter(Boolean).join('_');
+  let key = base;
+  for (let n = 2; key in taken; n++) {
+    key = `${base}_${n}`;
+  }
+  return key;
+}
 
 /**
  * Rich description for the get_market_data tool.
@@ -218,13 +235,13 @@ export function createGetMarketData(model: string): DynamicStructuredTool {
       const combinedData: Record<string, unknown> = {};
 
       for (const result of successfulResults) {
-        // Use tool name as key, or tool_ticker for multiple calls to same tool
-        const ticker = (result.args as Record<string, unknown>).ticker as string | undefined;
-        const key = ticker ? `${result.tool}_${ticker}` : result.tool;
+        const args = result.args as Record<string, unknown>;
         const formatter = MARKET_DATA_FORMATTERS[result.tool];
-        combinedData[key] = formatter
-          ? formatter(result.data, result.args as Record<string, unknown>)
-          : result.data;
+        const formatted = formatter ? formatter(result.data, args) : result.data;
+        // Long price histories are excerpted inline; the full set goes to a file
+        const savedNote = savePriceHistory(result.tool, result.data, args);
+        combinedData[resultKey(result.tool, args, combinedData)] =
+          savedNote && typeof formatted === 'string' ? `${formatted}\n\n${savedNote}` : formatted;
       }
 
       // Add errors if any
