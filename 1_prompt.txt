@@ -1,0 +1,94 @@
+Produce a detailed fundamental research report on First Solar (FSLR) as of today. I am using this to form a view on whether the business is getting stronger or weaker and whether the current share price fairly reflects it, so I care more about specific numbers and clear reasoning than about breadth for its own sake. Risks and growth prospects matter most to me: each one should be called out explicitly, sized where possible, and tied to evidence.
+
+Work from current data. Use the most recent quarterly results and the latest guidance, not just the last annual report, and state the fiscal period and date of every figure. If the latest quarter has been reported but is not yet in the financial data tool, get it from the earnings release or the 10-Q.
+
+Use every data feed you have rather than leaning on web search alone: the financials tool for statements, ratios, segments and estimates; the market data tool for the price, price history and news; the filings reader for the latest 10-K, 10-Q and earnings 8-K; web search and web fetch or the browser for the earnings call, investor presentation and policy developments; and X search for sentiment. If one of these tools is not available in this session, say so in the report and carry on with the rest.
+
+You have a limited number of tool-calling steps, so batch independent calls into the same step: pull the statements, ratios and estimates together, and run the web searches together.
+
+DATA TO GATHER
+
+Financials, from the financials tool:
+- Income statement, balance sheet and cash flow statement: annual for the last 5 fiscal years, quarterly for the last 8 quarters, plus trailing twelve months
+- Key ratios and valuation multiples, current and historical
+- Analyst estimates for revenue and EPS for the current and next two fiscal years
+- Segment or geographic revenue breakdown if available
+- Insider trades over the last 12 months and the largest institutional holders with recent changes
+
+Market data: current price snapshot, market cap, 52-week range, daily prices for the last 2 years, and company news from the last 90 days.
+
+Filings, read from the source rather than summarized from articles:
+- Latest 10-K: business description, risk factors, MD&A, and the notes covering the advanced manufacturing tax credits, product warranties and contingencies
+- Latest 10-Q: MD&A, the bookings and backlog discussion, and any changes to risk factors
+- Latest earnings 8-K and the guidance it contains, and how that guidance has changed across the last four quarters
+
+Operating metrics specific to First Solar, with dates. These are the areas I know matter for this company; verify the current state of each rather than assuming, and add anything material I have missed:
+- Volumes: megawatts or gigawatts produced and sold, by quarter and year
+- Contracted backlog: total gigawatts and dollar value, average selling price per watt, the delivery schedule by year, and how far out the company is sold
+- Bookings: net bookings since the prior report, booking prices versus backlog average, and any contract terminations or customer defaults, including termination payments received
+- Manufacturing capacity: nameplate capacity by plant and country today, plants under construction or ramping, expected capacity by year end and over the next two years, utilization, and any underutilization or idling charges
+- Cost: cost per watt produced and sold, and the trend
+- Tax credits: the amount of Section 45X advanced manufacturing credits recognized each period, their share of gross profit and operating income, how much has been sold for cash and at what discount, and the statutory phase-down schedule
+- Technology: the status of the current module series and the roadmap (including CuRe and perovskite or tandem work), R&D spend, and any patent licensing or litigation income
+- Product quality: warranty reserves and any charges for manufacturing defects in recent module series
+
+Industry and policy, from web search, limited to developments that change the numbers:
+- US trade policy: tariffs, antidumping and countervailing duty cases, Section 232 actions, and foreign-entity restrictions, and whether each helps or hurts First Solar relative to competitors
+- Federal energy policy: the current status and expiry of manufacturing and clean electricity tax credits after recent legislation, and what that does to utility-scale solar demand
+- Demand: US utility-scale solar installation forecasts, interconnection and permitting constraints, and power demand from data centers
+- Competition: global module pricing and oversupply, and the capacity plans of other US module manufacturers
+- Exposure outside the US, India in particular
+
+Sentiment, briefly: analyst rating distribution and price target range, short interest, and the bull and bear arguments circulating on X over the last 14 days. Treat X as a read on sentiment, not as a source of facts: label any number that comes only from a post as unverified.
+
+ANALYSIS
+
+Compute ratios and growth rates yourself from the statements (with the bash tool if it is available) rather than relying on figures quoted in articles, and show the inputs. If a calculation is not possible, say so instead of estimating.
+
+Growth and profitability:
+- Revenue, gross profit, operating income, net income and diluted EPS: 5-year trend, year-over-year growth for each of the last 8 quarters, and CAGR
+- Gross, operating and net margins over the same periods, with the reasons for the main changes
+- Every profitability figure shown twice: as reported, and excluding the Section 45X credits. I want to see what the underlying module business earns without the subsidy.
+- Return on equity and return on invested capital
+
+Cash flow and balance sheet:
+- Operating cash flow, capital expenditure and free cash flow by year, and how they compare with net income
+- Working capital trends: receivables, inventories and deferred revenue, and what they say about demand and collections
+- Cash and marketable securities, total debt, net cash, and liquidity ratios
+- Capital allocation: capex plans, buybacks, dividends, and what management says it will do with the cash
+
+Valuation:
+- P/E (trailing and forward), EV/EBITDA, EV/sales, price to book, price to free cash flow, and free cash flow yield, each compared with the company's own 5-year range
+- The same multiples for a small set of relevant peers, with a note on how comparable each peer really is
+- Run the DCF valuation skill for an intrinsic value estimate, and include a sensitivity case where the 45X credits end earlier or are worth less than assumed
+- What growth and margins the current price implies
+
+Growth prospects: identify each driver, estimate its contribution to revenue or earnings and when it arrives, and say what evidence supports it and what has to go right.
+
+Risks: identify each risk, then rate its likelihood and its impact on earnings (high, medium or low), say what would signal it is materializing, and note any mitigation. Cover at least policy and subsidy dependence, pricing and backlog quality, customer concentration and contract terminations, execution on new plants, technology and competition, product quality and warranty, and valuation. Compare the risk factors in the latest filings with the prior year and point out what was added or changed.
+
+REPORT FORMAT
+
+1. Executive summary: 5 to 8 sentences giving the overall read on the business, the valuation, and the single most important growth driver and risk.
+2. Snapshot table: price, market cap, enterprise value, 52-week range, and the headline multiples, with the date.
+3. Business overview: what the company sells, to whom, where it manufactures, and what sets it apart from crystalline silicon competitors. Keep it short.
+4. Financial performance: tables for the annual and quarterly trends, with a short interpretation under each.
+5. Tax credit dependence: reported versus ex-45X results side by side, and the phase-down schedule.
+6. Backlog, bookings and capacity: tables, and what they imply for revenue over the next two to three years.
+7. Balance sheet and cash flow.
+8. Valuation: multiples, peers, DCF result and sensitivity.
+9. Growth prospects: one subsection per driver.
+10. Risks: one table (risk, likelihood, impact, early warning sign), followed by a paragraph on each of the top three.
+11. Bull, base and bear cases for the next 12 to 24 months, each with the assumptions behind it, a rough probability, and an implied value per share.
+12. What to watch: the upcoming earnings date, policy decisions, and the metrics that would change the view.
+13. Sources, with dates, including any tools that were unavailable.
+
+Standards:
+- State every number with its date or fiscal period and its source. Where sources disagree, give the range and say which you trust more.
+- Keep computed values (from the statements) visibly separate from quoted values (from the web or management).
+- Separate what management says from what the numbers show, and say so plainly when they differ.
+- If the fundamentals and the valuation point in different directions, say so rather than smoothing it over.
+- Flag anything you could not retrieve or verify instead of filling the gap.
+- This is analysis, not personal financial advice; no position-sizing recommendations are needed.
+
+When the report is complete, save it as markdown to .dexter/reports/fslr-report-YYYY-MM-DD.md using today's date, and tell me the path.
